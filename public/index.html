@@ -6,11 +6,7 @@
     <title>NEMA - Verify License</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -21,9 +17,7 @@
             line-height: 21px;
         }
 
-        .header {
-            padding: 15px 30px 15px 120px;
-        }
+        .header { padding: 15px 30px 15px 120px; }
 
         .nema-logo {
             display: block;
@@ -32,16 +26,11 @@
             object-fit: fill;
             width: 83px;
         }
-
         @media (min-width: 640px) {
-            .nema-logo {
-                width: 104px;
-            }
+            .nema-logo { width: 104px; }
         }
 
-        .main-content {
-            padding: 40px 30px 40px 120px;
-        }
+        .main-content { padding: 40px 30px 40px 120px; }
 
         .license-section {
             display: flex;
@@ -49,9 +38,7 @@
             gap: 60px;
         }
 
-        .badge-container {
-            flex-shrink: 0;
-        }
+        .badge-container { flex-shrink: 0; }
 
         .verified-badge {
             display: block;
@@ -60,22 +47,14 @@
             object-fit: fill;
             width: 166px;
         }
-
         @media (min-width: 640px) {
-            .verified-badge {
-                width: 208px;
-            }
+            .verified-badge { width: 208px; }
         }
-
         @media (min-width: 768px) {
-            .verified-badge {
-                width: 291px;
-            }
+            .verified-badge { width: 291px; }
         }
 
-        .details-container {
-            flex: 1;
-        }
+        .details-container { flex: 1; }
 
         .details-container h1 {
             font-size: 30px;
@@ -115,65 +94,30 @@
             font-size: 14px;
             font-weight: 600;
         }
+        .status-badge.inactive, .status-badge.expired { background-color: #ef4444; }
+        .status-badge.suspended { background-color: #f59e0b; }
 
-        .status-badge.inactive,
-        .status-badge.expired {
-            background-color: #ef4444;
-        }
-
-        .status-badge.suspended {
-            background-color: #f59e0b;
-        }
-
-        /* ========== MOBILE ========== */
         @media (max-width: 767px) {
-            .header {
-                padding: 12px 16px;
-            }
-
-            .main-content {
-                padding: 16px 16px;
-            }
+            .header { padding: 12px 16px; }
+            .main-content { padding: 16px 16px; }
 
             .license-section {
                 flex-direction: column;
                 align-items: center;
                 gap: 20px;
             }
-
-            .badge-container {
-                text-align: center;
-            }
-
-            .details-container {
-                width: 100%;
-            }
-
-            .details-container h1 {
-                font-size: 22px;
-                font-weight: 700;
-                margin-bottom: 16px;
-            }
-
+            .badge-container { text-align: center; }
+            .details-container { width: 100%; }
+            .details-container h1 { font-size: 22px; font-weight: 700; margin-bottom: 16px; }
             .detail-row {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 2px;
                 margin-bottom: 16px;
             }
-
-            .detail-label {
-                font-size: 16px;
-                color: #000;
-            }
-
-            .detail-value {
-                font-size: 15px;
-            }
-
-            .status-badge {
-                margin-top: 2px;
-            }
+            .detail-label { font-size: 16px; color: #000; }
+            .detail-value { font-size: 15px; }
+            .status-badge { margin-top: 2px; }
         }
     </style>
 </head>
@@ -195,22 +139,18 @@
                     <span class="detail-label">Reg Status:</span>
                     <span id="regStatus" class="status-badge">Active</span>
                 </div>
-
                 <div class="detail-row">
                     <span class="detail-label">Proponent Name:</span>
                     <span id="proponentName" class="detail-value">SONASWETA COMPANY LIMITED</span>
                 </div>
-
                 <div class="detail-row">
                     <span class="detail-label">License Number:</span>
                     <span id="licenseNumber" class="detail-value">NEMA/ENVIS/EA/0180</span>
                 </div>
-
                 <div class="detail-row">
                     <span class="detail-label">Product Name:</span>
                     <span id="productName" class="detail-value">Environment Audit - Low Risk Projects</span>
                 </div>
-
                 <div class="detail-row">
                     <span class="detail-label">Issuance Date:</span>
                     <span id="issuanceDate" class="detail-value">9th January 2026</span>
@@ -220,61 +160,51 @@
     </div>
 
     <script>
-        function loadData() {
-            const savedData = localStorage.getItem('nemaLicenseData');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                document.getElementById('regStatus').textContent = data.regStatus || 'Active';
-                document.getElementById('proponentName').textContent = data.proponentName || 'SONASWETA COMPANY LIMITED';
-                document.getElementById('licenseNumber').textContent = data.licenseNumber || 'NEMA/ENVIS/EA/0180';
-                document.getElementById('productName').textContent = data.productName || 'Environment Audit - Low Risk Projects';
-                document.getElementById('issuanceDate').textContent = data.issuanceDate || '9th January 2026';
+        async function loadLicense() {
+            try {
+                const res = await fetch('/api/license');
+                const data = await res.json();
+
+                document.getElementById('regStatus').textContent = data.regStatus;
+                document.getElementById('proponentName').textContent = data.proponentName;
+                document.getElementById('licenseNumber').textContent = data.licenseNumber;
+                document.getElementById('productName').textContent = data.productName;
+                document.getElementById('issuanceDate').textContent = data.issuanceDate;
 
                 const statusEl = document.getElementById('regStatus');
-                const status = (data.regStatus || 'active').toLowerCase();
+                const s = (data.regStatus || '').toLowerCase();
                 statusEl.className = 'status-badge';
-                if (status === 'inactive' || status === 'expired') statusEl.classList.add('inactive');
-                else if (status === 'suspended') statusEl.classList.add('suspended');
+                if (s === 'inactive' || s === 'expired') statusEl.classList.add('inactive');
+                else if (s === 'suspended') statusEl.classList.add('suspended');
+            } catch (err) {
+                console.error('Failed to load license:', err);
             }
         }
 
-        function loadSizes() {
-            const savedSizes = localStorage.getItem('nemaSizes');
-            if (savedSizes) {
-                const sizes = JSON.parse(savedSizes);
-                if (sizes.logoScale) {
-                    document.getElementById('nemaLogo').style.width = (83 * sizes.logoScale / 100) + 'px';
-                }
-                if (sizes.badgeScale) {
-                    document.getElementById('verifiedBadge').style.width = (166 * sizes.badgeScale / 100) + 'px';
-                }
-            }
-        }
+        async function loadStyles() {
+            try {
+                const res = await fetch('/api/styles');
+                const styles = await res.json();
 
-        function loadStyles() {
-            const savedStyles = localStorage.getItem('nemaStyles');
-            if (savedStyles) {
-                const styles = JSON.parse(savedStyles);
-                const values = document.querySelectorAll('.detail-value');
-                values.forEach(el => {
+                if (styles.logoScale) {
+                    document.getElementById('nemaLogo').style.width = (83 * styles.logoScale / 100) + 'px';
+                }
+                if (styles.badgeScale) {
+                    document.getElementById('verifiedBadge').style.width = (166 * styles.badgeScale / 100) + 'px';
+                }
+                document.querySelectorAll('.detail-value').forEach(el => {
                     el.style.fontWeight = styles.bold ? '700' : '400';
                     if (styles.color) el.style.color = styles.color;
                 });
-                const labels = document.querySelectorAll('.detail-label');
-                labels.forEach(el => {
+                document.querySelectorAll('.detail-label').forEach(el => {
                     if (styles.labelColor) el.style.color = styles.labelColor;
                 });
+            } catch (err) {
+                console.error('Failed to load styles:', err);
             }
         }
 
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'nemaLicenseData') loadData();
-            if (e.key === 'nemaSizes') loadSizes();
-            if (e.key === 'nemaStyles') loadStyles();
-        });
-
-        loadData();
-        loadSizes();
+        loadLicense();
         loadStyles();
     </script>
 </body>

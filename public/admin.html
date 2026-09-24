@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEMA Admin - License Management</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: #fff;
+            padding: 12px 30px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header img { height: 60px; width: auto; }
+        .admin-badge {
+            background-color: #e74c3c; color: #fff;
+            padding: 6px 16px; border-radius: 6px;
+            font-size: 13px; font-weight: 700;
+            letter-spacing: 1px; text-transform: uppercase;
+        }
+
+        .main-content { max-width: 900px; margin: 0 auto; padding: 30px; }
+        h1 { font-size: 26px; font-weight: 600; color: #333; margin-bottom: 6px; }
+        .subtitle { color: #777; font-size: 14px; margin-bottom: 30px; }
+
+        .form-section {
+            background: #fff; border-radius: 10px; padding: 28px;
+            margin-bottom: 24px; border: 1px solid #e0e0e0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .form-section h2 {
+            font-size: 18px; font-weight: 600; color: #333;
+            margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #eee;
+        }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 14px; color: #555; margin-bottom: 5px; font-weight: 500; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px 14px; background: #fff;
+            border: 1px solid #ccc; border-radius: 6px;
+            color: #333; font-size: 15px; transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: #6dd400;
+            box-shadow: 0 0 0 2px rgba(109,212,0,0.15);
+        }
+        .form-group select {
+            cursor: pointer; appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 12px center; background-size: 18px;
+        }
+
+        .size-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+        .size-row label { min-width: 140px; font-size: 14px; color: #555; font-weight: 500; }
+        .size-row input[type="range"] { flex: 1; accent-color: #6dd400; cursor: pointer; }
+        .size-row .size-val { min-width: 48px; text-align: right; font-weight: 600; font-size: 14px; color: #333; }
+
+        .button-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+
+        .btn-save {
+            display: inline-flex; align-items: center; gap: 8px;
+            background-color: #6dd400; color: #fff; border: none;
+            padding: 12px 30px; border-radius: 6px;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-save:hover { background-color: #5fb800; }
+
+        .btn-view {
+            display: inline-flex; align-items: center; gap: 8px;
+            background-color: #2196f3; color: #fff; border: none;
+            padding: 12px 30px; border-radius: 6px;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+            transition: background-color 0.2s; text-decoration: none;
+        }
+        .btn-view:hover { background-color: #1e88e5; }
+
+        .preview-card {
+            background: #f9f9f9; border: 1px solid #e0e0e0;
+            border-radius: 6px; padding: 18px; margin-top: 20px;
+        }
+        .preview-card h3 { font-size: 13px; color: #999; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .preview-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+        .preview-row:last-child { border-bottom: none; }
+        .preview-row .p-label { color: #888; }
+        .preview-row .p-value { color: #333; font-weight: 600; }
+        .preview-row .p-status { background: #6dd400; color: #fff; padding: 2px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .preview-row .p-status.inactive, .preview-row .p-status.expired { background: #ef4444; }
+        .preview-row .p-status.suspended { background: #f59e0b; }
+
+        .qr-section {
+            background: #fff; border-radius: 10px; padding: 28px;
+            border: 1px solid #e0e0e0; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            text-align: center;
+        }
+        .qr-section h2 { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 6px; }
+        .qr-section .qr-subtitle { color: #888; font-size: 13px; margin-bottom: 22px; }
+        .qr-wrapper { display: inline-block; background: #fff; padding: 16px; border: 1px solid #e0e0e0; border-radius: 10px; margin-bottom: 16px; }
+        #qrcode { display: inline-block; }
+        #qrcode img { display: block; }
+        .qr-url { font-size: 12px; color: #777; word-break: break-all; margin-top: 12px; padding: 10px 14px; background: #f5f5f5; border-radius: 6px; border: 1px solid #e0e0e0; text-align: left; font-family: 'Consolas', monospace; }
+        .qr-placeholder { color: #aaa; font-size: 14px; padding: 40px 0; }
+
+        .toast {
+            position: fixed; bottom: 30px; right: 30px;
+            background: #6dd400; color: #fff;
+            padding: 14px 24px; border-radius: 8px;
+            font-size: 14px; font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            transform: translateY(100px); opacity: 0;
+            transition: all 0.3s ease; z-index: 1000;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #ccc; border-radius: 24px; transition: 0.3s;
+        }
+        .toggle-slider:before {
+            content: ""; position: absolute;
+            height: 18px; width: 18px; left: 3px; bottom: 3px;
+            background: #fff; border-radius: 50%; transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: #6dd400; }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+        @media (max-width: 768px) {
+            .header { padding: 10px 15px; }
+            .header img { height: 45px; }
+            .main-content { padding: 20px 15px; }
+            h1 { font-size: 22px; }
+            .form-section, .qr-section { padding: 20px; }
+            .button-row { flex-direction: column; }
+            .btn-save, .btn-view { width: 100%; justify-content: center; }
+            .size-row { flex-wrap: wrap; }
+            .size-row label { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="logo-nema.svg" alt="NEMA Logo">
+        <span class="admin-badge">⚙ Admin Panel</span>
+    </div>
+
+    <div class="main-content">
+        <h1>License Management</h1>
+        <p class="subtitle">Update license details below. Changes are saved to the server and visible to anyone with the link.</p>
+
+        <div class="form-section">
+            <h2>License Details</h2>
+            <div class="form-group">
+                <label for="regStatus">Registration Status</label>
+                <select id="regStatus">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="Suspended">Suspended</option>
+                    <option value="Expired">Expired</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="proponentName">Proponent Name</label>
+                <input type="text" id="proponentName" placeholder="e.g. SONASWETA COMPANY LIMITED">
+            </div>
+            <div class="form-group">
+                <label for="licenseNumber">License Number</label>
+                <input type="text" id="licenseNumber" placeholder="e.g. NEMA/ENVIS/EA/0180">
+            </div>
+            <div class="form-group">
+                <label for="productName">Product Name</label>
+                <input type="text" id="productName" placeholder="e.g. Environment Audit - Low Risk Projects">
+            </div>
+            <div class="form-group">
+                <label for="issuanceDate">Issuance Date</label>
+                <input type="text" id="issuanceDate" placeholder="e.g. 9th January 2026">
+            </div>
+
+            <div class="button-row">
+                <button class="btn-save" onclick="saveData()">💾 Save &amp; Generate QR</button>
+                <a href="/" target="_blank" class="btn-view">👁 View Public Page</a>
+            </div>
+
+            <div class="preview-card" id="previewCard" style="display: none;">
+                <h3>Current Saved Details</h3>
+                <div class="preview-row"><span class="p-label">Status</span><span class="p-status" id="previewStatus">Active</span></div>
+                <div class="preview-row"><span class="p-label">Proponent</span><span class="p-value" id="previewProponent">—</span></div>
+                <div class="preview-row"><span class="p-label">License #</span><span class="p-value" id="previewLicense">—</span></div>
+                <div class="preview-row"><span class="p-label">Product</span><span class="p-value" id="previewProduct">—</span></div>
+                <div class="preview-row"><span class="p-label">Issued</span><span class="p-value" id="previewDate">—</span></div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Appearance Settings</h2>
+            <div class="size-row">
+                <label for="logoSize">Logo Size</label>
+                <input type="range" id="logoSize" min="50" max="200" value="100">
+                <span class="size-val" id="logoSizeVal">100%</span>
+            </div>
+            <div class="size-row">
+                <label for="badgeSize">Verified Badge Size</label>
+                <input type="range" id="badgeSize" min="50" max="200" value="100">
+                <span class="size-val" id="badgeSizeVal">100%</span>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+            <h3 style="font-size: 15px; font-weight: 600; color: #555; margin-bottom: 14px;">Text Styling</h3>
+
+            <div class="size-row">
+                <label for="boldValues">Bold Values</label>
+                <label class="toggle-switch"><input type="checkbox" id="boldValues"><span class="toggle-slider"></span></label>
+                <span class="size-val" id="boldLabel" style="min-width: 30px;">Off</span>
+            </div>
+            <div class="size-row">
+                <label for="valueColor">Value Text Color</label>
+                <input type="color" id="valueColor" value="#1a1a1a" style="width: 40px; height: 32px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; padding: 2px;">
+                <span class="size-val" id="valueColorHex">#1a1a1a</span>
+            </div>
+            <div class="size-row">
+                <label for="labelColor">Label Text Color</label>
+                <input type="color" id="labelColor" value="#000000" style="width: 40px; height: 32px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; padding: 2px;">
+                <span class="size-val" id="labelColorHex">#000000</span>
+            </div>
+
+            <div class="button-row" style="margin-top: 16px;">
+                <button class="btn-save" onclick="saveAppearance()">🎨 Apply Appearance</button>
+            </div>
+        </div>
+
+        <div class="qr-section">
+            <h2>QR Code</h2>
+            <p class="qr-subtitle">Scan this QR code to open the public license verification page</p>
+            <div id="qrPlaceholder" class="qr-placeholder">Save details above to generate a QR code</div>
+            <div id="qrContent" style="display: none;">
+                <div class="qr-wrapper"><div id="qrcode"></div></div>
+                <div class="qr-url" id="qrUrl"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Live UI updates
+        document.getElementById('logoSize').addEventListener('input', function() { document.getElementById('logoSizeVal').textContent = this.value + '%'; });
+        document.getElementById('badgeSize').addEventListener('input', function() { document.getElementById('badgeSizeVal').textContent = this.value + '%'; });
+        document.getElementById('boldValues').addEventListener('change', function() { document.getElementById('boldLabel').textContent = this.checked ? 'On' : 'Off'; });
+        document.getElementById('valueColor').addEventListener('input', function() { document.getElementById('valueColorHex').textContent = this.value; });
+        document.getElementById('labelColor').addEventListener('input', function() { document.getElementById('labelColorHex').textContent = this.value; });
+
+        // Load from server
+        async function loadForm() {
+            try {
+                const res = await fetch('/api/license');
+                const data = await res.json();
+                document.getElementById('regStatus').value = data.regStatus;
+                document.getElementById('proponentName').value = data.proponentName;
+                document.getElementById('licenseNumber').value = data.licenseNumber;
+                document.getElementById('productName').value = data.productName;
+                document.getElementById('issuanceDate').value = data.issuanceDate;
+                updatePreview(data);
+                generateQR();
+            } catch (err) { console.error('Load failed:', err); }
+        }
+
+        async function loadAppearance() {
+            try {
+                const res = await fetch('/api/styles');
+                const s = await res.json();
+                document.getElementById('logoSize').value = s.logoScale || 100;
+                document.getElementById('logoSizeVal').textContent = (s.logoScale || 100) + '%';
+                document.getElementById('badgeSize').value = s.badgeScale || 100;
+                document.getElementById('badgeSizeVal').textContent = (s.badgeScale || 100) + '%';
+                document.getElementById('boldValues').checked = s.bold || false;
+                document.getElementById('boldLabel').textContent = s.bold ? 'On' : 'Off';
+                document.getElementById('valueColor').value = s.color || '#1a1a1a';
+                document.getElementById('valueColorHex').textContent = s.color || '#1a1a1a';
+                document.getElementById('labelColor').value = s.labelColor || '#000000';
+                document.getElementById('labelColorHex').textContent = s.labelColor || '#000000';
+            } catch (err) { console.error('Load styles failed:', err); }
+        }
+
+        // Save to server
+        async function saveData() {
+            const data = {
+                regStatus: document.getElementById('regStatus').value,
+                proponentName: document.getElementById('proponentName').value.trim(),
+                licenseNumber: document.getElementById('licenseNumber').value.trim(),
+                productName: document.getElementById('productName').value.trim(),
+                issuanceDate: document.getElementById('issuanceDate').value.trim()
+            };
+            if (!data.proponentName || !data.licenseNumber || !data.productName || !data.issuanceDate) {
+                alert('Please fill in all fields.'); return;
+            }
+            try {
+                await fetch('/api/license', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                updatePreview(data);
+                generateQR();
+                showToast('✓ License details saved! QR code generated.');
+            } catch (err) { alert('Save failed: ' + err.message); }
+        }
+
+        async function saveAppearance() {
+            const styles = {
+                logoScale: parseInt(document.getElementById('logoSize').value),
+                badgeScale: parseInt(document.getElementById('badgeSize').value),
+                bold: document.getElementById('boldValues').checked,
+                color: document.getElementById('valueColor').value,
+                labelColor: document.getElementById('labelColor').value
+            };
+            try {
+                await fetch('/api/styles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(styles) });
+                showToast('✓ Appearance applied!');
+            } catch (err) { alert('Save failed: ' + err.message); }
+        }
+
+        function updatePreview(data) {
+            document.getElementById('previewCard').style.display = 'block';
+            const el = document.getElementById('previewStatus');
+            el.textContent = data.regStatus;
+            el.className = 'p-status';
+            const s = data.regStatus.toLowerCase();
+            if (s === 'inactive' || s === 'expired') el.classList.add('inactive');
+            else if (s === 'suspended') el.classList.add('suspended');
+            document.getElementById('previewProponent').textContent = data.proponentName;
+            document.getElementById('previewLicense').textContent = data.licenseNumber;
+            document.getElementById('previewProduct').textContent = data.productName;
+            document.getElementById('previewDate').textContent = data.issuanceDate;
+        }
+
+        function generateQR() {
+            const c = document.getElementById('qrcode');
+            document.getElementById('qrPlaceholder').style.display = 'none';
+            document.getElementById('qrContent').style.display = 'block';
+            const publicUrl = window.location.origin + '/';
+            c.innerHTML = '';
+            new QRCode(c, { text: publicUrl, width: 200, height: 200, colorDark: '#333', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H });
+            document.getElementById('qrUrl').textContent = publicUrl;
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        loadForm();
+        loadAppearance();
+    </script>
+</body>
+</html>

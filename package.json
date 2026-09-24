@@ -1,0 +1,12 @@
+{
+  "name": "nema-license-verification",
+  "version": "1.0.0",
+  "description": "NEMA License Verification System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
