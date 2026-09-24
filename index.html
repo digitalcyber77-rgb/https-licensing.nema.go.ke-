@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEMA - Verify License</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff;
+            color: #222;
+            min-height: 100vh;
+            font-size: 14px;
+            line-height: 21px;
+        }
+
+        .header {
+            padding: 15px 30px 15px 120px;
+        }
+
+        .nema-logo {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            object-fit: fill;
+            width: 83px;
+        }
+
+        @media (min-width: 640px) {
+            .nema-logo {
+                width: 104px;
+            }
+        }
+
+        .main-content {
+            padding: 40px 30px 40px 120px;
+        }
+
+        .license-section {
+            display: flex;
+            align-items: flex-start;
+            gap: 60px;
+        }
+
+        .badge-container {
+            flex-shrink: 0;
+        }
+
+        .verified-badge {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            object-fit: fill;
+            width: 166px;
+        }
+
+        @media (min-width: 640px) {
+            .verified-badge {
+                width: 208px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .verified-badge {
+                width: 291px;
+            }
+        }
+
+        .details-container {
+            flex: 1;
+        }
+
+        .details-container h1 {
+            font-size: 30px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+        }
+
+        .detail-row {
+            margin-bottom: 14px;
+            line-height: 1.7;
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 8px;
+        }
+
+        .detail-label {
+            font-size: 16px;
+            color: #000;
+            font-weight: 400;
+            white-space: nowrap;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            color: #1a1a1a;
+            font-weight: 400;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background-color: #6dd400;
+            color: #fff;
+            padding: 3px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-badge.inactive,
+        .status-badge.expired {
+            background-color: #ef4444;
+        }
+
+        .status-badge.suspended {
+            background-color: #f59e0b;
+        }
+
+        /* ========== MOBILE ========== */
+        @media (max-width: 767px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .main-content {
+                padding: 16px 16px;
+            }
+
+            .license-section {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .badge-container {
+                text-align: center;
+            }
+
+            .details-container {
+                width: 100%;
+            }
+
+            .details-container h1 {
+                font-size: 22px;
+                font-weight: 700;
+                margin-bottom: 16px;
+            }
+
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 2px;
+                margin-bottom: 16px;
+            }
+
+            .detail-label {
+                font-size: 16px;
+                color: #000;
+            }
+
+            .detail-value {
+                font-size: 15px;
+            }
+
+            .status-badge {
+                margin-top: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img class="nema-logo" id="nemaLogo" src="logo-nema.svg" alt="NEMA Logo">
+    </div>
+
+    <div class="main-content">
+        <div class="license-section">
+            <div class="badge-container">
+                <img class="verified-badge" id="verifiedBadge" src="VERIFIED.png" alt="NEMA Verified Badge">
+            </div>
+
+            <div class="details-container">
+                <h1>License Details</h1>
+
+                <div class="detail-row">
+                    <span class="detail-label">Reg Status:</span>
+                    <span id="regStatus" class="status-badge">Active</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Proponent Name:</span>
+                    <span id="proponentName" class="detail-value">SONASWETA COMPANY LIMITED</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">License Number:</span>
+                    <span id="licenseNumber" class="detail-value">NEMA/ENVIS/EA/0180</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Product Name:</span>
+                    <span id="productName" class="detail-value">Environment Audit - Low Risk Projects</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Issuance Date:</span>
+                    <span id="issuanceDate" class="detail-value">9th January 2026</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadData() {
+            const savedData = localStorage.getItem('nemaLicenseData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                document.getElementById('regStatus').textContent = data.regStatus || 'Active';
+                document.getElementById('proponentName').textContent = data.proponentName || 'SONASWETA COMPANY LIMITED';
+                document.getElementById('licenseNumber').textContent = data.licenseNumber || 'NEMA/ENVIS/EA/0180';
+                document.getElementById('productName').textContent = data.productName || 'Environment Audit - Low Risk Projects';
+                document.getElementById('issuanceDate').textContent = data.issuanceDate || '9th January 2026';
+
+                const statusEl = document.getElementById('regStatus');
+                const status = (data.regStatus || 'active').toLowerCase();
+                statusEl.className = 'status-badge';
+                if (status === 'inactive' || status === 'expired') statusEl.classList.add('inactive');
+                else if (status === 'suspended') statusEl.classList.add('suspended');
+            }
+        }
+
+        function loadSizes() {
+            const savedSizes = localStorage.getItem('nemaSizes');
+            if (savedSizes) {
+                const sizes = JSON.parse(savedSizes);
+                if (sizes.logoScale) {
+                    document.getElementById('nemaLogo').style.width = (83 * sizes.logoScale / 100) + 'px';
+                }
+                if (sizes.badgeScale) {
+                    document.getElementById('verifiedBadge').style.width = (166 * sizes.badgeScale / 100) + 'px';
+                }
+            }
+        }
+
+        function loadStyles() {
+            const savedStyles = localStorage.getItem('nemaStyles');
+            if (savedStyles) {
+                const styles = JSON.parse(savedStyles);
+                const values = document.querySelectorAll('.detail-value');
+                values.forEach(el => {
+                    el.style.fontWeight = styles.bold ? '700' : '400';
+                    if (styles.color) el.style.color = styles.color;
+                });
+                const labels = document.querySelectorAll('.detail-label');
+                labels.forEach(el => {
+                    if (styles.labelColor) el.style.color = styles.labelColor;
+                });
+            }
+        }
+
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'nemaLicenseData') loadData();
+            if (e.key === 'nemaSizes') loadSizes();
+            if (e.key === 'nemaStyles') loadStyles();
+        });
+
+        loadData();
+        loadSizes();
+        loadStyles();
+    </script>
+</body>
+</html>
